@@ -54,27 +54,6 @@ Linux.DeviceType = detectDevice()
 Linux.ActiveNotifications = {}
 Linux.NotificationCounter = 0
 
-Linux.AppearanceSettings = {
-    AccentColor = Color3.fromRGB(240, 140, 0),
-    FrameColor = Color3.fromRGB(25, 25, 25),
-    BackgroundColor = Color3.fromRGB(8, 8, 8),
-    TopBarColor = Color3.fromRGB(18, 18, 20),
-    BorderColor = Color3.fromRGB(39, 39, 42)
-}
-
-Linux.DefaultAppearance = {
-    AccentColor = Color3.fromRGB(240, 140, 0),
-    FrameColor = Color3.fromRGB(25, 25, 25),
-    BackgroundColor = Color3.fromRGB(8, 8, 8),
-    TopBarColor = Color3.fromRGB(18, 18, 20),
-    BorderColor = Color3.fromRGB(39, 39, 42)
-}
-
-Linux.FrameElements = {}
-Linux.BackgroundElements = {}
-Linux.TopBarElements = {}
-Linux.BorderElements = {}
-
 Linux.IgnoredElements = {}
 
 function Linux.SetIgnoreIndexes(names)
@@ -95,28 +74,11 @@ function Linux.RegisterAccentElement(element)
     table.insert(Linux.AccentElements, element)
 end
 
-function Linux.RegisterFrameElement(element)
-    table.insert(Linux.FrameElements, element)
-end
-
-function Linux.RegisterBackgroundElement(element)
-    table.insert(Linux.BackgroundElements, element)
-end
-
-function Linux.RegisterTopBarElement(element)
-    table.insert(Linux.TopBarElements, element)
-end
-
-function Linux.RegisterBorderElement(element)
-    table.insert(Linux.BorderElements, element)
-end
-
 function Linux.ApplyTheme(themeName)
     if not Linux.Themes[themeName] then return end
     
     local newColor = Linux.Themes[themeName]
     Linux.CurrentTheme = themeName
-    Linux.AppearanceSettings.AccentColor = newColor
     
     for _, element in pairs(Linux.AccentElements) do
         if element and element.Parent then
@@ -124,136 +86,6 @@ function Linux.ApplyTheme(themeName)
             TweenService:Create(element, tweenInfo, {BackgroundColor3 = newColor}):Play()
         end
     end
-end
-
-function Linux.ApplyAccentColor(color)
-    Linux.AppearanceSettings.AccentColor = color
-    
-    for _, element in pairs(Linux.AccentElements) do
-        if element and element.Parent then
-            local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            TweenService:Create(element, tweenInfo, {BackgroundColor3 = color}):Play()
-        end
-    end
-end
-
-function Linux.ApplyFrameColor(color)
-    Linux.AppearanceSettings.FrameColor = color
-    
-    for _, element in pairs(Linux.FrameElements) do
-        if element and element.Parent then
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            TweenService:Create(element, tweenInfo, {BackgroundColor3 = color}):Play()
-        end
-    end
-end
-
-function Linux.ApplyBackgroundColor(color)
-    Linux.AppearanceSettings.BackgroundColor = color
-    
-    for _, element in pairs(Linux.BackgroundElements) do
-        if element and element.Parent then
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            TweenService:Create(element, tweenInfo, {BackgroundColor3 = color}):Play()
-        end
-    end
-end
-
-function Linux.ApplyTopBarColor(color)
-    Linux.AppearanceSettings.TopBarColor = color
-    
-    for _, element in pairs(Linux.TopBarElements) do
-        if element and element.Parent then
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            TweenService:Create(element, tweenInfo, {BackgroundColor3 = color}):Play()
-        end
-    end
-end
-
-function Linux.ApplyBorderColor(color)
-    Linux.AppearanceSettings.BorderColor = color
-    
-    for _, element in pairs(Linux.BorderElements) do
-        if element and element.Parent then
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            TweenService:Create(element, tweenInfo, {BorderColor3 = color}):Play()
-        end
-    end
-end
-
-function Linux.SaveAppearanceSettings()
-    local success, result = pcall(function()
-        local appearanceData = {
-            AccentColor = {Linux.AppearanceSettings.AccentColor.R, Linux.AppearanceSettings.AccentColor.G, Linux.AppearanceSettings.AccentColor.B},
-            FrameColor = {Linux.AppearanceSettings.FrameColor.R, Linux.AppearanceSettings.FrameColor.G, Linux.AppearanceSettings.FrameColor.B},
-            BackgroundColor = {Linux.AppearanceSettings.BackgroundColor.R, Linux.AppearanceSettings.BackgroundColor.G, Linux.AppearanceSettings.BackgroundColor.B},
-            TopBarColor = {Linux.AppearanceSettings.TopBarColor.R, Linux.AppearanceSettings.TopBarColor.G, Linux.AppearanceSettings.TopBarColor.B},
-            BorderColor = {Linux.AppearanceSettings.BorderColor.R, Linux.AppearanceSettings.BorderColor.G, Linux.AppearanceSettings.BorderColor.B}
-        }
-        local json = HttpService:JSONEncode(appearanceData)
-        if writefile then
-            if not isfolder(Linux.ConfigFolder) then
-                makefolder(Linux.ConfigFolder)
-            end
-            writefile(Linux.ConfigFolder .. "/appearance.json", json)
-            return true
-        else
-            return false, "writefile function not available"
-        end
-    end)
-    if not success then
-        print("Error saving appearance settings:", result)
-    end
-    return success, result
-end
-
-function Linux.LoadAppearanceSettings()
-    local success, result = pcall(function()
-        if readfile and isfile(Linux.ConfigFolder .. "/appearance.json") then
-            local json = readfile(Linux.ConfigFolder .. "/appearance.json")
-            local appearanceData = HttpService:JSONDecode(json)
-            
-            if appearanceData.AccentColor then
-                Linux.AppearanceSettings.AccentColor = Color3.fromRGB(appearanceData.AccentColor[1] * 255, appearanceData.AccentColor[2] * 255, appearanceData.AccentColor[3] * 255)
-            end
-            if appearanceData.FrameColor then
-                Linux.AppearanceSettings.FrameColor = Color3.fromRGB(appearanceData.FrameColor[1] * 255, appearanceData.FrameColor[2] * 255, appearanceData.FrameColor[3] * 255)
-            end
-            if appearanceData.BackgroundColor then
-                Linux.AppearanceSettings.BackgroundColor = Color3.fromRGB(appearanceData.BackgroundColor[1] * 255, appearanceData.BackgroundColor[2] * 255, appearanceData.BackgroundColor[3] * 255)
-            end
-            if appearanceData.TopBarColor then
-                Linux.AppearanceSettings.TopBarColor = Color3.fromRGB(appearanceData.TopBarColor[1] * 255, appearanceData.TopBarColor[2] * 255, appearanceData.TopBarColor[3] * 255)
-            end
-            if appearanceData.BorderColor then
-                Linux.AppearanceSettings.BorderColor = Color3.fromRGB(appearanceData.BorderColor[1] * 255, appearanceData.BorderColor[2] * 255, appearanceData.BorderColor[3] * 255)
-            end
-            
-            return true
-        else
-            return false, "Appearance settings file not found"
-        end
-    end)
-    if not success then
-        print("Error loading appearance settings:", result)
-    end
-    return success, result
-end
-
-function Linux.ResetToDefaultAppearance()
-    Linux.AppearanceSettings = {
-        AccentColor = Color3.fromRGB(240, 140, 0),
-        FrameColor = Color3.fromRGB(25, 25, 25),
-        BackgroundColor = Color3.fromRGB(8, 8, 8),
-        TopBarColor = Color3.fromRGB(18, 18, 20),
-        BorderColor = Color3.fromRGB(39, 39, 42)
-    }
-    
-    Linux.ApplyAccentColor(Linux.AppearanceSettings.AccentColor)
-    Linux.ApplyFrameColor(Linux.AppearanceSettings.FrameColor)
-    Linux.ApplyBackgroundColor(Linux.AppearanceSettings.BackgroundColor)
-    Linux.ApplyTopBarColor(Linux.AppearanceSettings.TopBarColor)
-    Linux.ApplyBorderColor(Linux.AppearanceSettings.BorderColor)
 end
 
 function Linux.SaveThemeSettings()
@@ -459,7 +291,7 @@ function Linux:Notify(config)
     
     local ProgressFill = Linux.Instance("Frame", {
         Parent = ProgressBar,
-        BackgroundColor3 = Linux.AppearanceSettings.AccentColor,
+        BackgroundColor3 = Linux.Themes[Linux.CurrentTheme],
         Size = UDim2.new(0, 0, 1, 0),
         ZIndex = 101,
         BorderSizePixel = 1,
@@ -740,7 +572,7 @@ function Linux.LoadConfigList()
                 local fileName = string.match(file, "[^/\\]+$")
                 local configName = string.match(fileName, "(.+)%.json$")
                 
-                if configName and configName ~= "autoload" and configName ~= "privacy" and configName ~= "theme" and configName ~= "appearance" then
+                if configName and configName ~= "autoload" and configName ~= "privacy" and configName ~= "theme" then
                     table.insert(Linux.SavedConfigs, configName)
                 end
             end
@@ -765,7 +597,6 @@ function Linux.Create(config)
     Linux.LoadAutoLoadSettings()
     Linux.LoadPrivacySettings()
     Linux.LoadThemeSettings()
-    Linux.LoadAppearanceSettings()
     
     local parent = RunService:IsStudio() and LocalPlayer:FindFirstChild("PlayerGui") or (gethui and gethui() or game:GetService("CoreGui"))
     local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
@@ -889,8 +720,8 @@ function Linux.Create(config)
     
     local Main = Linux.Instance("Frame", {
         Parent = LinuxUI,
-        BackgroundColor3 = Linux.AppearanceSettings.BackgroundColor,
-        BorderColor3 = Linux.AppearanceSettings.BorderColor,
+        BackgroundColor3 = Color3.fromRGB(8, 8, 8),
+        BorderColor3 = Color3.fromRGB(39, 39, 42),
         BackgroundTransparency = 0.09,
         BorderSizePixel = 1,
         Size = UDim2.new(0, 0, 0, 0),
@@ -900,9 +731,6 @@ function Linux.Create(config)
         Draggable = false,
         ZIndex = 1
     })
-    
-    Linux.RegisterBackgroundElement(Main)
-    Linux.RegisterBorderElement(Main)
     
     Linux.Instance("UICorner", {
         Parent = Main,
@@ -987,17 +815,15 @@ function Linux.Create(config)
     
     local TopBar = Linux.Instance("Frame", {
         Parent = Main,
-        BackgroundColor3 = Linux.AppearanceSettings.TopBarColor,
+        BackgroundColor3 = Color3.fromRGB(18, 18, 20),
         BackgroundTransparency = 1,
-        BorderColor3 = Linux.AppearanceSettings.BorderColor,
+        BorderColor3 = Color3.fromRGB(39, 39, 42),
         BorderSizePixel = 0,
         Size = UDim2.new(1, 0, 0, 30),
         ZIndex = 2,
         Active = true,
         Draggable = false
     })
-    
-    Linux.RegisterTopBarElement(TopBar)
     
     Linux.Instance("UICorner", {
         Parent = TopBar,
@@ -1128,16 +954,14 @@ function Linux.Create(config)
     
     local TabsBar = Linux.Instance("Frame", {
         Parent = Main,
-        BackgroundColor3 = Linux.AppearanceSettings.BackgroundColor,
+        BackgroundColor3 = Color3.fromRGB(8, 8, 8),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 0, 0, 30),
         Size = UDim2.new(0, config.TabWidth or 130, 1, -30),
         ZIndex = 2,
         BorderSizePixel = 0,
-        BorderColor3 = Linux.AppearanceSettings.BorderColor
+        BorderColor3 = Color3.fromRGB(39, 39, 42)
     })
-    
-    Linux.RegisterBackgroundElement(TabsBar)
     
     local ProfileFrame = Linux.Instance("Frame", {
         Parent = TabsBar,
@@ -1209,11 +1033,9 @@ function Linux.Create(config)
         ScrollBarThickness = 0,
         ZIndex = 2,
         BorderSizePixel = 1,
-        BorderColor3 = Linux.AppearanceSettings.BorderColor,
+        BorderColor3 = Color3.fromRGB(39, 39, 42),
         ScrollingEnabled = true
     })
-    
-    Linux.RegisterBorderElement(TabHolder)
     
     Linux.Instance("UIListLayout", {
         Parent = TabHolder,
@@ -1232,17 +1054,14 @@ function Linux.Create(config)
     
     local Content = Linux.Instance("Frame", {
         Parent = Main,
-        BackgroundColor3 = Linux.AppearanceSettings.TopBarColor,
+        BackgroundColor3 = Color3.fromRGB(18, 18, 20),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, config.TabWidth or 130, 0, 30),
         Size = UDim2.new(1, -(config.TabWidth or 130), 1, -30),
         ZIndex = 1,
         BorderSizePixel = 1,
-        BorderColor3 = Linux.AppearanceSettings.BorderColor
+        BorderColor3 = Color3.fromRGB(39, 39, 42)
     })
-    
-    Linux.RegisterTopBarElement(Content)
-    Linux.RegisterBorderElement(Content)
     
     local originalSize = uiSize
     local minimizedSize = UDim2.new(0, uiSize.X.Offset, 0, 30)
@@ -1382,7 +1201,7 @@ function Linux.Create(config)
             Parent = TabHolder,
             BackgroundColor3 = Color3.fromRGB(18, 18, 20),
             BackgroundTransparency = 1,
-            BorderColor3 = Linux.AppearanceSettings.BorderColor,
+            BorderColor3 = Color3.fromRGB(39, 39, 42),
             BorderSizePixel = 0,
             Size = UDim2.new(1, 0, 0, 32),
             Font = Enum.Font.GothamSemibold,
@@ -1394,8 +1213,6 @@ function Linux.Create(config)
             LayoutOrder = tabIndex
         })
         
-        Linux.RegisterFrameElement(TabBtn)
-        
         Linux.Instance("UICorner", {
             Parent = TabBtn,
             CornerRadius = UDim.new(0, 4)
@@ -1403,7 +1220,7 @@ function Linux.Create(config)
         
         local TabAccentBar = Linux.Instance("Frame", {
             Parent = TabBtn,
-            BackgroundColor3 = Linux.AppearanceSettings.AccentColor,
+            BackgroundColor3 = Linux.Themes[Linux.CurrentTheme],
             BackgroundTransparency = 0,
             BorderSizePixel = 0,
             Size = UDim2.new(0, 0, 0, 24),
@@ -1453,24 +1270,20 @@ function Linux.Create(config)
             Visible = false,
             ZIndex = 1,
             BorderSizePixel = 1,
-            BorderColor3 = Linux.AppearanceSettings.BorderColor
+            BorderColor3 = Color3.fromRGB(39, 39, 42)
         })
-        
-        Linux.RegisterBorderElement(TabContent)
         
         local TitleFrame = Linux.Instance("Frame", {
             Parent = Content,
-            BackgroundColor3 = Linux.AppearanceSettings.BackgroundColor,
+            BackgroundColor3 = Color3.fromRGB(8, 8, 8),
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 0, 50),
             Position = UDim2.new(0, 0, 0, 0),
             Visible = false,
             ZIndex = 3,
             BorderSizePixel = 0,
-            BorderColor3 = Linux.AppearanceSettings.BorderColor
+            BorderColor3 = Color3.fromRGB(39, 39, 42)
         })
-        
-        Linux.RegisterBackgroundElement(TitleFrame)
         
         local TitleLabel = Linux.Instance("TextLabel", {
             Parent = TitleFrame,
@@ -1493,12 +1306,12 @@ function Linux.Create(config)
             Position = UDim2.new(0, 12, 0, 55),
             ZIndex = 1,
             BorderSizePixel = 0,
-            BorderColor3 = Linux.AppearanceSettings.BorderColor
+            BorderColor3 = Color3.fromRGB(39, 39, 42)
         })
         
         local Container = Linux.Instance("ScrollingFrame", {
             Parent = ContainerWrapper,
-            BackgroundColor3 = Linux.AppearanceSettings.BackgroundColor,
+            BackgroundColor3 = Color3.fromRGB(8, 8, 8),
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 1, 0),
             CanvasSize = UDim2.new(0, 0, 0, 0),
@@ -1506,12 +1319,10 @@ function Linux.Create(config)
             ScrollBarThickness = 0,
             ZIndex = 1,
             BorderSizePixel = 0,
-            BorderColor3 = Linux.AppearanceSettings.BorderColor,
+            BorderColor3 = Color3.fromRGB(39, 39, 42),
             ScrollingEnabled = true,
             CanvasPosition = Vector2.new(0, 0)
         })
-        
-        Linux.RegisterBackgroundElement(Container)
         
         local ContainerListLayout = Linux.Instance("UIListLayout", {
             Parent = Container,
@@ -1597,7 +1408,7 @@ function Linux.Create(config)
             TabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
             TabBtn.BackgroundTransparency = 0.6
             TabBtn.BorderSizePixel = 1
-            TabBtn.BorderColor3 = Linux.AppearanceSettings.BorderColor
+            TabBtn.BorderColor3 = Color3.fromRGB(39, 39, 42)
             
             if TabIcon then
                 TabIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
@@ -1671,16 +1482,14 @@ function Linux.Create(config)
             
             local BtnFrame = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, frameHeight),
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(BtnFrame)
             
             Linux.Instance("UICorner", {
                 Parent = BtnFrame,
@@ -1773,7 +1582,7 @@ function Linux.Create(config)
                 local DialogFrame = Linux.Instance("Frame", {
                     Parent = ConfirmationOverlay,
                     BackgroundColor3 = Color3.fromRGB(13, 13, 13),
-                    BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                    BorderColor3 = Color3.fromRGB(39, 39, 42),
                     BorderSizePixel = 1,
                     BackgroundTransparency = 1,
                     Size = UDim2.new(0, 300, 0, 150),
@@ -1853,7 +1662,7 @@ function Linux.Create(config)
                     for i, buttonConfig in ipairs(confirmationConfig.Buttons) do
                         local DialogButton = Linux.Instance("TextButton", {
                             Parent = ButtonsFrame,
-                            BackgroundColor3 = i == 1 and Linux.AppearanceSettings.AccentColor or Color3.fromRGB(60, 60, 70),
+                            BackgroundColor3 = i == 1 and Linux.Themes[Linux.CurrentTheme] or Color3.fromRGB(60, 60, 70),
                             BorderSizePixel = 0,
                             Size = UDim2.new(0, 80, 0, 30),
                             Font = Enum.Font.GothamSemibold,
@@ -1873,16 +1682,16 @@ function Linux.Create(config)
                         DialogButton.MouseEnter:Connect(function()
                             TweenService:Create(DialogButton, TweenInfo.new(0.2), {
                                 BackgroundColor3 = i == 1 and Color3.fromRGB(
-                                    math.min(255, Linux.AppearanceSettings.AccentColor.R * 255 + 20),
-                                    math.min(255, Linux.AppearanceSettings.AccentColor.G * 255 + 20),
-                                    math.min(255, Linux.AppearanceSettings.AccentColor.B * 255 + 20)
+                                    math.min(255, Linux.Themes[Linux.CurrentTheme].R * 255 + 20),
+                                    math.min(255, Linux.Themes[Linux.CurrentTheme].G * 255 + 20),
+                                    math.min(255, Linux.Themes[Linux.CurrentTheme].B * 255 + 20)
                                 ) or Color3.fromRGB(80, 80, 90)
                             }):Play()
                         end)
                         
                         DialogButton.MouseLeave:Connect(function()
                             TweenService:Create(DialogButton, TweenInfo.new(0.2), {
-                                BackgroundColor3 = i == 1 and Linux.AppearanceSettings.AccentColor or Color3.fromRGB(60, 60, 70)
+                                BackgroundColor3 = i == 1 and Linux.Themes[Linux.CurrentTheme] or Color3.fromRGB(60, 60, 70)
                             }):Play()
                         end)
                         
@@ -1934,16 +1743,14 @@ function Linux.Create(config)
             
             local Toggle = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, frameHeight),
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(Toggle)
             
             Linux.Instance("UICorner", {
                 Parent = Toggle,
@@ -1987,7 +1794,7 @@ function Linux.Create(config)
                 Position = UDim2.new(1, -46, 0.5, -9),
                 ZIndex = 2,
                 BorderSizePixel = 1,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 Name = "Track"
             })
             
@@ -2009,7 +1816,7 @@ function Linux.Create(config)
                 Position = UDim2.new(0, 2, 0.5, -7),
                 ZIndex = 3,
                 BorderSizePixel = 1,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 Name = "Knob"
             })
             
@@ -2037,7 +1844,7 @@ function Linux.Create(config)
                 if thisTrack and thisKnob then
                     local tween = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
                     if currentState then
-                        TweenService:Create(thisTrack, tween, {BackgroundColor3 = Linux.AppearanceSettings.AccentColor}):Play()
+                        TweenService:Create(thisTrack, tween, {BackgroundColor3 = Linux.Themes[Linux.CurrentTheme]}):Play()
                         TweenService:Create(thisKnob, tween, {Position = UDim2.new(0, 20, 0.5, -7), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
                         
                         local isAlreadyRegistered = false
@@ -2182,16 +1989,14 @@ function Linux.Create(config)
             
             local Dropdown = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, frameHeight),
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(Dropdown)
             
             Linux.Instance("UICorner", {
                 Parent = Dropdown,
@@ -2297,7 +2102,7 @@ function Linux.Create(config)
                 Parent = targetContainer,
                 BackgroundColor3 = Color3.fromRGB(21, 21, 21),
                 BackgroundTransparency = 1,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, 0),
                 ZIndex = 2,
@@ -2313,7 +2118,7 @@ function Linux.Create(config)
 
             local OptionsHolder = Linux.Instance("ScrollingFrame", {
                 Parent = DropFrame,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
                 Size = UDim2.new(1, 0, 1, 0),
                 CanvasSize = UDim2.new(0, 0, 0, 0),
@@ -2321,11 +2126,9 @@ function Linux.Create(config)
                 ScrollBarThickness = 0,
                 ZIndex = 2,
                 BorderSizePixel = 1,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 ScrollingEnabled = true
             })
-            
-            Linux.RegisterFrameElement(OptionsHolder)
             
             Linux.Instance("UIListLayout", {
                 Parent = OptionsHolder,
@@ -2398,7 +2201,7 @@ function Linux.Create(config)
                             Parent = OptionsHolder,
                             BackgroundColor3 = Color3.fromRGB(21, 21, 21),
                             BackgroundTransparency = 1,
-                            BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                            BorderColor3 = Color3.fromRGB(39, 39, 42),
                             BorderSizePixel = 0,
                             Size = UDim2.new(1, -4, 0, 28),
                             Font = Enum.Font.GothamSemibold,
@@ -2417,7 +2220,7 @@ function Linux.Create(config)
                         
                         local OptAccentBar = Linux.Instance("Frame", {
                             Parent = OptBtn,
-                            BackgroundColor3 = Linux.AppearanceSettings.AccentColor,
+                            BackgroundColor3 = Linux.Themes[Linux.CurrentTheme],
                             BackgroundTransparency = 0,
                             BorderSizePixel = 0,
                             Size = isSelected and UDim2.new(0, 4, 0, 20) or UDim2.new(0, 0, 0, 20),
@@ -2597,15 +2400,13 @@ function Linux.Create(config)
             
             local Slider = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, frameHeight),
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(Slider)
             
             Linux.Instance("UICorner", {
                 Parent = Slider,
@@ -2649,7 +2450,7 @@ function Linux.Create(config)
                 Position = UDim2.new(0, 10, 0, hasDescription and 50 or 26),
                 ZIndex = 2,
                 BorderSizePixel = 0,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 Name = "Bar"
             })
             
@@ -2683,11 +2484,11 @@ function Linux.Create(config)
             
             local FillBar = Linux.Instance("Frame", {
                 Parent = SliderBar,
-                BackgroundColor3 = Linux.AppearanceSettings.AccentColor,
+                BackgroundColor3 = Linux.Themes[Linux.CurrentTheme],
                 Size = UDim2.new(0, 0, 1, 0),
                 ZIndex = 2,
                 BorderSizePixel = 1,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 Name = "Fill"
             })
             
@@ -2915,16 +2716,14 @@ function Linux.Create(config)
             
             local Input = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, frameHeight),
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(Input)
             
             Linux.Instance("UICorner", {
                 Parent = Input,
@@ -3163,16 +2962,14 @@ function Linux.Create(config)
             
             local LabelFrame = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, 36),
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(LabelFrame)
             
             Linux.Instance("UICorner", {
                 Parent = LabelFrame,
@@ -3282,7 +3079,7 @@ function Linux.Create(config)
                 ZIndex = 2,
                 LayoutOrder = currentElementOrder,
                 BorderSizePixel = 0,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 Name = "Section"
             })
             
@@ -3356,17 +3153,15 @@ function Linux.Create(config)
             
             local ParagraphFrame = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, 0),
                 AutomaticSize = Enum.AutomaticSize.Y,
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(ParagraphFrame)
             
             Linux.Instance("UICorner", {
                 Parent = ParagraphFrame,
@@ -3443,16 +3238,14 @@ function Linux.Create(config)
             
             local ColorPicker = Linux.Instance("Frame", {
                 Parent = targetContainer,
-                BackgroundColor3 = Linux.AppearanceSettings.FrameColor,
+                BackgroundColor3 = Color3.fromRGB(25, 25, 25),
                 BackgroundTransparency = 0.6,
-                BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                BorderColor3 = Color3.fromRGB(39, 39, 42),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, 0, 0, frameHeight),
                 ZIndex = 1,
                 LayoutOrder = currentElementOrder
             })
-            
-            Linux.RegisterFrameElement(ColorPicker)
             
             Linux.Instance("UICorner", {
                 Parent = ColorPicker,
@@ -3583,7 +3376,7 @@ function Linux.Create(config)
                 local DialogFrame = Linux.Instance("Frame", {
                     Parent = ColorOverlay,
                     BackgroundColor3 = Color3.fromRGB(13, 13, 13),
-                    BorderColor3 = Linux.AppearanceSettings.BorderColor,
+                    BorderColor3 = Color3.fromRGB(39, 39, 42),
                     BorderSizePixel = 1,
                     BackgroundTransparency = 1,
                     Size = UDim2.new(0, dialogWidth, 0, dialogHeight),
@@ -3911,7 +3704,7 @@ function Linux.Create(config)
                 updateColorArea()
                 updateCursorPosition()
                 
-                local accentColor = Linux.AppearanceSettings.AccentColor
+                local accentColor = Linux.Themes[Linux.CurrentTheme]
                 local function createRGBSlider(colorName, position, value)
                     local SliderFrame = Linux.Instance("Frame", {
                         Parent = DialogFrame,
